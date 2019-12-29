@@ -33,6 +33,21 @@ includedir = join_paths (
   prefix, get_option('includedir'))
 libdir = join_paths (prefix, get_option ('libdir'))
 
+os_darwin = false
+os_linux = false
+os_freebsd = false
+os_windows = false
+
+if host_machine.system() == 'darwin'
+  os_darwin = true
+elif host_machine.system() == 'linux'
+  os_linux = true
+elif host_machine.system() == 'freebsd'
+  os_freebsd = true
+elif host_machine.system() == 'windows'
+  os_windows = true
+endif
+
 cdata = configuration_data ()
 cdata.set_quoted (
   'PACKAGE_VERSION',

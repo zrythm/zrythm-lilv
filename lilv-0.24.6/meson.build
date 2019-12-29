@@ -35,7 +35,7 @@ lilv_cdata.set_quoted('LILV_VERSION', '0.24.6')
 if cc.has_function('lstat')
   lilv_cdata.set('HAVE_LSTAT', 1)
 endif
-if cc.has_function('flock')
+if (not os_freebsd) and cc.has_function('flock')
   lilv_cdata.set('HAVE_FLOCK', 1)
 endif
 if cc.has_function('fileno')

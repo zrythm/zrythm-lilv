@@ -15,15 +15,5 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with Zrythm.  If not, see <https://www.gnu.org/licenses/>.
 
-lv2 = static_library (
-  'lv2',
-  sources: [],
-  dependencies: [
-    ],
-  include_directories: 'lv2',
-  install: false,
-)
-
 lv2_dep = declare_dependency (
-  include_directories: '.',
-  link_with: lv2)
+  include_directories: '.')
