@@ -44,7 +44,7 @@ endif
 if cc.has_function('clock_gettime')
   lilv_cdata.set('HAVE_CLOCK_GETTIME', 1)
 endif
-dl_dep = dependency('dl', required: false)
+dl_dep = cc.find_library('dl', required: false)
 if dl_dep.found()
   lilv_cdata.set('HAVE_LIBDL', 1)
 endif
