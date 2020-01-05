@@ -42,6 +42,7 @@
 #ifdef __cplusplus
 extern "C"
 #endif
+#if 0 // Zrythm note: already defined in mingw
 static BOOLEAN WINAPI
 CreateSymbolicLink(LPCTSTR linkpath, LPCTSTR targetpath, DWORD flags)
 {
@@ -51,6 +52,7 @@ CreateSymbolicLink(LPCTSTR linkpath, LPCTSTR targetpath, DWORD flags)
 	                                  "CreateSymbolicLinkA");
 	return pfn ? pfn(linkpath, targetpath, flags) : 0;
 }
+#endif // if 0
 #    endif
 #else
 #    include <dirent.h>
