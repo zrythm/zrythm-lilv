@@ -17,7 +17,6 @@
 
 sord_src = files([
   'sord.c',
-  'sord_validate.c',
   'sordi.c',
   'syntax.c',
   ])
