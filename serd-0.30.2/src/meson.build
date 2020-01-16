@@ -21,7 +21,6 @@ serd_src = files([
   'n3.c',
   'node.c',
   'reader.c',
-  'serdi.c',
   'string.c',
   'uri.c',
   'writer.c',
