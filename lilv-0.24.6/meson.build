@@ -48,9 +48,16 @@ dl_dep = cc.find_library('dl', required: false)
 if dl_dep.found()
   lilv_cdata.set('HAVE_LIBDL', 1)
 endif
-lilv_cdata.set_quoted('LILV_PATH_SEP', ':')
-lilv_cdata.set_quoted('LILV_DIR_SEP', '/')
-lilv_cdata.set_quoted('LILV_DEFAULT_LV2_PATH', '~/.lv2:/usr/@0@/lv2:/usr/local/@0@/lv2'.format(get_option('libdir')))
+if os_windows
+  lilv_cdata.set_quoted('LILV_PATH_SEP', ';')
+  lilv_cdata.set_quoted('LILV_DIR_SEP', '\\\\')
+  lilv_cdata.set_quoted('LILV_DEFAULT_LV2_PATH',
+    '%APPDATA%\\\\LV2;%COMMONPROGRAMFILES%\\\\LV2')
+elif os_linux or os_freebsd
+  lilv_cdata.set_quoted('LILV_PATH_SEP', ':')
+  lilv_cdata.set_quoted('LILV_DIR_SEP', '/')
+  lilv_cdata.set_quoted('LILV_DEFAULT_LV2_PATH', '~/.lv2:/usr/@0@/lv2:/usr/local/@0@/lv2'.format(get_option('libdir')))
+endif
 lilv_config_h = configure_file (
   output: 'lilv_config.h',
   configuration: lilv_cdata,
