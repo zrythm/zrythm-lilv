@@ -1,0 +1,260 @@
+lv2 (1.18.0) stable;
+
+  * Improve documentation.
+  * Separate extended documentation from primary data.
+  * core: Add lv2:Markdown datatype.
+  * core: Deprecate lv2:reportsLatency.
+  * patch: Fix incorrect type of patch:sequenceNumber.
+  * port-groups: Remove incorrect type of pg:letterCode.
+  * port-groups: Replace broken links with detailed Ambisonic channel
+    descriptions.
+  * state: Add state:freePath feature.
+  * ui: Add ui:requestValue feature.
+  * ui: Add ui:scaleFactor, ui:foregroundColor, and ui:backgroundColor
+    properties.
+  * ui: Deprecate ui:binary.
+  * worker: Improve documentation.
+
+ -- David Robillard <d@drobilla.net>  Sun, 26 Apr 2020 00:00:00 
+
+lv2 (1.16.0) stable;
+
+  * Add core/attributes.h utility header.
+  * Add lv2_validate utility.
+  * Aggressively deprecate uri-map and event extensions.
+  * Install headers to simpler paths.
+  * Simplify use of lv2specgen.
+  * Upgrade build system and fix building with Python 3.7.
+  * atom: Add lv2_atom_object_get_typed() for easy type-safe access to object
+    properties.
+  * core: Add lv2:MIDIPlugin class.
+  * core: Rework port restrictions so that presets can be validated.
+  * eg-midigate: Respond to "all notes off" MIDI message.
+  * eg-sampler: Add waveform display to UI.
+  * midi: Fix incorrect range of midi:chunk.
+  * options: Relax range of opts:requiredOption and opts:supportedOption
+  * patch: Add patch:accept property.
+  * patch: Add patch:context property.
+  * state: Add state:StateChanged for notification events.
+  * time: Clarify time:beat origin.
+  * units: Fix outdated port description in documentation.
+  * units: Remove overly restrictive domain from units:unit.
+
+ -- David Robillard <d@drobilla.net>  Sun, 03 Feb 2019 00:00:00 
+
+lv2 (1.14.0) stable;
+
+  * buf-size: Add bufsz:coarseBlockLength feature.
+  * buf-size: Add bufsz:nominalBlockLength option.
+  * core: Add lv2:enabled designation.
+  * core: Add lv2_util.h with lv2_features_data() and lv2_features_query().
+  * eg-sampler: Fix handling of state file paths.
+  * eg-sampler: Support thread-safe state restoration.
+  * eg-scope: Don't feed back UI state updates.
+  * log: Add lv2_log_logger_set_map() for changing the URI map of an existing
+    logger.
+  * state: Add LV2_STATE_ERR_NO_SPACE status flag.
+  * state: Add state:threadSafeRestore feature for dropout-free state
+    restoration.
+  * time: Define LV2_TIME_PREFIX.
+  * ui: Add missing property labels.
+  * ui: Improve documentation.
+
+ -- David Robillard <d@drobilla.net>  Mon, 19 Sep 2016 00:00:00 
+
+lv2 (1.12.0) stable;
+
+  * Fix merging of version histories in specification documentation.
+  * Improve API documentation.
+  * Simplify property restrictions by removing redundancy.
+  * core: Add extern C and visibility attribute to LV2_SYMBOL_EXPORT.
+  * core: Add lv2:isSideChain port property.
+  * core: Relax domain of lv2:minimum lv2:maximum and lv2:default so they can
+    be used to describe properties/parameters as well.
+  * eg-sampler: Add gain parameter.
+  * eg-sampler: Support patch:Get, and request initial state from UI.
+  * parameters: Add range to parameters so hosts know how to control them.
+  * patch: Add patch:Copy method.
+  * patch: Define patch:Get with no subject to implicitly apply to reciever.
+    This can be used by UIs to get an initial description of a plugin.
+  * units: Add lv2:Parameter to domain of units:unit.
+  * units: Fix non-existent port type in examples.
+
+ -- David Robillard <d@drobilla.net>  Tue, 07 Apr 2015 00:00:00 
+
+lv2 (1.10.0) stable;
+
+  * Fix -Wconversion warnings in headers.
+  * Upgrade to waf 1.7.16.
+  * atom: Add lv2_atom_forge_is_object_type() and lv2_atom_forge_is_blank() to
+    ease backwards compatibility.
+  * atom: Add lv2_atom_forge_key() for terser object writing.
+  * atom: Add lv2_atom_sequence_clear() and lv2_atom_sequence_append_event()
+    helper functions.
+  * atom: Deprecate Blank and Resource in favour of just Object.
+  * core: Clarify lv2_descriptor() and lv2_lib_descriptor() documentation.
+  * event: Minor documentation improvements.
+  * lv2specgen: Display deprecated warning on classes marked owl:deprecated.
+  * patch: Add patch:sequenceNumber for associating replies with requests.
+  * ui: Add show interface so UIs can gracefully degrade to separate windows
+    if hosts can not use their widget directly.
+  * ui: Fix identifier typos in documentation.
+
+ -- David Robillard <d@drobilla.net>  Fri, 08 Aug 2014 00:00:00 
+
+lv2 (1.8.0) stable;
+
+  * Add scope example plugin from Robin Gareus.
+  * Install lv2specgen for use by other projects.
+  * atom: Make lv2_atom_*_is_end() arguments const.
+  * core: Add lv2:prototype for property inheritance.
+  * log: Add missing include string.h to logger.h for memset.
+  * lv2specgen: Fix links to externally defined terms.
+  * ui: Fix LV2_UI_INVALID_PORT_INDEX identifier in documentation.
+
+ -- David Robillard <d@drobilla.net>  Sat, 04 Jan 2014 00:00:00 
+
+lv2 (1.6.0) stable;
+
+  * Fix lv2specgen usage from command line.
+  * Fix port indices of metronome example.
+  * Upgrade to waf 1.7.11.
+  * atom: Fix crash in forge.h when pushing atoms to a full buffer.
+  * ui: Add idle interface so native UIs and foreign toolkits can drive their
+    event loops.
+  * ui: Add ui:updateRate property.
+
+ -- David Robillard <d@drobilla.net>  Fri, 09 Aug 2013 00:00:00 
+
+lv2 (1.4.0) stable;
+
+  * Add metronome example plugin to demonstrate sample accurate tempo sync.
+  * Generate book-style HTML documentation from example plugins.
+  * atom: Fix lv2_atom_sequence_end().
+  * atom: Improve atom documentation.
+  * atom: Remove atom:stringType in favour of owl:onDatatype so generic tools
+    can understand and validate atom literals.
+  * buf-size: Fix typo in bufsz:sequenceSize label.
+  * core: Add lv2:EnvelopePlugin class.
+  * core: Add lv2:control for designating primary event-based control ports.
+  * core: Make lv2:Parameter rdfs:subClassOf rdf:Property.
+  * core: Reserve minor version 0 for unstable development plugins.
+  * core: Set range of lv2:designation to lv2:Designation.
+  * event: Fix incorrect return type in lv2_event_get().
+  * log: Add logger convenience API.
+  * options: Set the range of opts:requiredOption and opts:supportedOption to
+    opts:Option.
+  * patch: Add patch:readable and patch:writable for describing available
+    properties.
+  * patch: Make patch:Set a compact message for setting one property.
+  * state: Add state:loadDefaultState feature so plugins can have their
+    default state loaded without hard-coding default state as a special case.
+  * ui: Fix incorrect linker flag in ui:makeSONameResident documentation.
+
+ -- David Robillard <d@drobilla.net>  Sun, 17 Feb 2013 00:00:00 
+
+lv2 (1.2.0) stable;
+
+  * Move all project metadata for extensions (e.g. change log) to separate
+    files to spare hosts from loading them during discovery.
+  * Use stricter datatype definitions conformant with the XSD and OWL
+    specifications for better validation.
+  * atom: Add LV2_ATOM_CONTENTS_CONST and LV2_ATOM_BODY_CONST.
+  * atom: Add lv2_atom_object_body_get().
+  * atom: Fix implicit conversions in forge.h that are invalid in C++11.
+  * atom: Fix lv2_atom_object_next() on 32-bit platforms.
+  * atom: Fix outdated documentation in forge.h.
+  * atom: Use consistent label style.
+  * buf-size: Initial release.
+  * core: Use consistent label style.
+  * dynmanifest: Use consistent label style.
+  * event: Make event iterator gracefully handle optional ports.
+  * event: Remove asserts from event-helper.h.
+  * event: Use consistent label style.
+  * event: Use more precise domain and range for EventPort properties.
+  * midi: Add C definitions for message types and standard controllers.
+  * midi: Add midi:HexByte datatype for status bytes and masks.
+  * midi: Add midi:binding and midi:channel predicates.
+  * midi: Fix definition of SystemExclusive status byte.
+  * midi: Remove non-standard midi:Tick message type.
+  * midi: Use consistent label style.
+  * morph: Initial release.
+  * options: Initial release.
+  * parameters: Add param:sampleRate.
+  * parameters: Add parameters.h of URI defines for convenience.
+  * parameters: Use consistent label style.
+  * port-groups: Use consistent label style.
+  * port-props: Use consistent label style.
+  * presets: Add preset banks.
+  * presets: Use consistent label style.
+  * state: Use consistent label style.
+  * time: Use consistent label style.
+  * ui: Add missing LV2_SYMBOL_EXPORT declaration for lv2ui_descriptor
+    prototype.
+  * ui: Add types for WindowsUI, CocoaUI, and Gtk3UI.
+  * ui: Use consistent label style.
+  * units: Remove units:name in favour of rdfs:label.
+  * units: Use consistent label style.
+  * urid: Fix typo in urid:unmap documentation.
+
+ -- David Robillard <d@drobilla.net>  Sun, 14 Oct 2012 00:00:00 
+
+lv2 (1.0.0) stable;
+
+  * Initial release as a unified project.  Projects can now simply depend on
+    the pkg-config package 'lv2' for all official LV2 APIs.
+  * New extensions: atom, log, parameters, patch, port-groups, port-props,
+    resize-port, state, time, worker.
+  * atom: Initial release.
+  * core: Add lv2:CVPort.
+  * core: Add metadata concept of a designation, a channel or parameter
+    description which can be assigned to ports for more intelligent use by
+    hosts.
+  * core: Add new discovery API which allows libraries to read bundle files
+    during discovery, makes library construction/destruction explicit, and
+    adds extensibility to prevent future breakage.
+  * core: Fix LV2_SYMBOL_EXPORT and lv2_descriptor prototype for Windows.
+  * core: Merge with unified LV2 package.
+  * core: Relax the range of lv2:index so it can be used for things other than
+    ports.
+  * core: Remove lv2:Resource, which turned out to be meaningless.
+  * data-access: Merge with unified LV2 package.
+  * dynmanifest: Merge with unified LV2 package.
+  * event: Fix bug in lv2_event_reserve().
+  * event: Fix incorrect ranges of some properties.
+  * event: Merge with unified LV2 package.
+  * instance-access: Merge with unified LV2 package.
+  * log: Initial release.
+  * midi: Add class definitions for various message types.
+  * midi: Document how to serialise a MidiEvent to a string.
+  * midi: Merge with unified LV2 package.
+  * parameters: Initial release.
+  * patch: Initial release.
+  * port-groups: Initial release.
+  * port-props: Initial release.
+  * presets: Add pset:preset property for describing the preset currently
+    applied to a plugin instance.
+  * presets: Merge with unified LV2 package.
+  * presets: Remove pset:appliesTo property, use lv2:appliesTo instead.
+  * resize-port: Initial release.
+  * state: Initial release.
+  * time: Initial release.
+  * ui: Add port protocols and a dynamic notification subscription mechanism,
+    for more flexible communication, and audio port metering without control
+    port kludges.
+  * ui: Add support for referring to ports by symbol.
+  * ui: Add touch feature to notify the host that the user has grabbed a
+    control.
+  * ui: Add ui:parent and ui:resize.
+  * ui: Add ui:portMap for accessing ports by symbol, allowing for UIs to be
+    distributed separately from plugins.
+  * ui: Merge with unified LV2 package.
+  * units: Add header of URI defines.
+  * units: Add unit for audio frames.
+  * units: Merge with unified LV2 package.
+  * uri-map: Merge with unified LV2 package.
+  * urid: Add feature struct names.
+  * urid: Merge with unified LV2 package.
+  * worker: Initial release.
+
+ -- David Robillard <d@drobilla.net>  Mon, 16 Apr 2012 00:00:00 

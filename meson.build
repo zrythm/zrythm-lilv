@@ -66,7 +66,7 @@ cdata.set_quoted (
 
 pcre_dep = dependency('libpcre', required: false)
 
-subdir('lv2-1.16.0')
+subdir('lv2-1.18.0')
 subdir('serd-0.30.2')
 subdir('sord-0.16.4')
 subdir('sratom-0.6.4')
