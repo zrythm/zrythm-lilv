@@ -35,6 +35,7 @@ if get_option('strict')
       '-Wno-implicit-float-conversion',
       '-Wno-implicit-int-conversion',
       '-Wno-nullability-extension',
+      '-Wno-nullable-to-nonnull-conversion',
       '-Wno-padded',
       '-Wno-reserved-id-macro',
       '-Wno-shorten-64-to-32',
