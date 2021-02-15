@@ -162,42 +162,13 @@ liblilv = build_target(
   c_args: library_args,
   dependencies: [m_dep, dl_dep, lv2_dep, serd_dep, sord_dep, sratom_dep],
   gnu_symbol_visibility: 'hidden',
-  install: true,
+  install: false,
   target_type: library_type)
 
 lilv_dep = declare_dependency(
   include_directories: include_directories(['include']),
   dependencies: [m_dep, dl_dep, lv2_dep, serd_dep, sord_dep, sratom_dep],
   link_with: liblilv)
-
-pkg.generate(
-  liblilv,
-  name: 'Lilv',
-  filebase: versioned_name,
-  subdirs: [versioned_name],
-  version: meson.project_version(),
-  description: 'A library for hosting LV2 plugins')
-
-# Build lilvi command line utility
-# if get_option('utils')
-
-#   lilvi = executable('lilvi', 'src/lilvi.c',
-#                      c_args: prog_args,
-#                      install: true,
-#                      dependencies: lilv_dep)
-
-#   if not get_option('docs').disabled()
-#     install_man('doc/lilvi.1')
-#   endif
-
-# endif
-
-# Install header to a versioned include directory
-install_headers(c_headers, subdir: versioned_name / 'lilv')
-
-# if not get_option('docs').disabled()
-#   subdir('doc')
-# endif
 
 if get_option('tests')
   if library_type == 'both_libraries'
