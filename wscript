@@ -289,8 +289,11 @@ def configure(conf):
 
 
 def build_util(bld, name, defines, libs=''):
+    util_src = [ name + '.c' ]
+    if name == 'utils/lv2apply':
+        util_src += [ 'utils/symap.c' ]
     obj = bld(features     = 'c cprogram',
-              source       = name + '.c',
+              source       = util_src,
               includes     = ['.', 'include', './src', './utils'],
               use          = 'liblilv',
               uselib       = 'SERD SORD SRATOM LV2 ' + libs,

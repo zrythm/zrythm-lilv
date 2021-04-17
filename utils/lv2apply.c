@@ -1,5 +1,6 @@
 /*
   Copyright 2007-2019 David Robillard <d@drobilla.net>
+  Copyright 2021 Alexandros Theodotou <alex@zrythm.org>
 
   Permission to use, copy, modify, and/or distribute this software for any
   purpose with or without fee is hereby granted, provided that the above
@@ -16,7 +17,13 @@
 
 #include "lilv/lilv.h"
 
+#include "lv2/atom/atom.h"
+#include "lv2/buf-size/buf-size.h"
 #include "lv2/core/lv2.h"
+#include "lv2/options/options.h"
+#include "lv2/parameters/parameters.h"
+#include "lv2/urid/urid.h"
+#include "symap.h"
 
 #include <math.h>
 #include <sndfile.h>
@@ -31,6 +38,10 @@
 #  define LILV_LOG_FUNC(fmt, arg1) __attribute__((format(printf, fmt, arg1)))
 #else
 #  define LILV_LOG_FUNC(fmt, arg1)
+#endif
+
+#ifndef ARRAY_SIZE
+#    define ARRAY_SIZE(arr) (sizeof(arr) / sizeof(arr[0]))
 #endif
 
 /** Control port value set from the command line */
@@ -52,22 +63,65 @@ typedef struct {
   bool            optional;  ///< True iff connection optional
 } Port;
 
+/** Features */
+typedef struct {
+  LV2_Feature        map_feature;
+  LV2_Feature        unmap_feature;
+  LV2_Options_Option options[4];
+  LV2_Feature        options_feature;
+} LV2ApplyFeatures;
+
+/** URIDs */
+typedef struct {
+  LV2_URID atom_Float;
+  LV2_URID atom_Int;
+  LV2_URID bufsz_maxBlockLength;
+  LV2_URID bufsz_minBlockLength;
+  LV2_URID param_sampleRate;
+} LV2ApplyURIDs;
+
 /** Application state */
 typedef struct {
-  LilvWorld*        world;
-  const LilvPlugin* plugin;
-  LilvInstance*     instance;
-  const char*       in_path;
-  const char*       out_path;
-  SNDFILE*          in_file;
-  SNDFILE*          out_file;
-  unsigned          n_params;
-  Param*            params;
-  unsigned          n_ports;
-  unsigned          n_audio_in;
-  unsigned          n_audio_out;
-  Port*             ports;
+  LilvWorld*          world;
+  const LilvPlugin*   plugin;
+  LilvInstance*       instance;
+  const char*         in_path;
+  const char*         out_path;
+  SNDFILE*            in_file;
+  SNDFILE*            out_file;
+  unsigned            n_params;
+  Param*              params;
+  unsigned            n_ports;
+  unsigned            n_audio_in;
+  unsigned            n_audio_out;
+  Port*               ports;
+  LV2ApplyFeatures    features;
+  const LV2_Feature** feature_list;
+  Symap*              symap;        ///< URI map
+  LV2_URID_Map        map;          ///< URI => Int map
+  LV2_URID_Unmap      unmap;        ///< Int => URI map
+  LV2ApplyURIDs       urids;        ///< URIDs
+  int                 block_length;
+  float               sample_rate;  ///< Sample rate
 } LV2Apply;
+
+static LV2_URID
+map_uri(LV2_URID_Map_Handle handle,
+        const char*         uri)
+{
+  LV2Apply* lv2apply = (LV2Apply*)handle;
+  const LV2_URID id = symap_map(lv2apply->symap, uri);
+  return id;
+}
+
+static const char*
+unmap_uri(LV2_URID_Unmap_Handle handle,
+          LV2_URID              urid)
+{
+  LV2Apply* lv2apply = (LV2Apply*)handle;
+  const char* uri = symap_unmap(lv2apply->symap, urid);
+  return uri;
+}
 
 static int
 fatal(LV2Apply* self, int status, const char* fmt, ...);
@@ -121,6 +175,8 @@ cleanup(int status, LV2Apply* self)
   lilv_world_free(self->world);
   free(self->ports);
   free(self->params);
+  symap_free(self->symap);
+  free(self->feature_list);
   return status;
 }
 
@@ -227,6 +283,63 @@ print_usage(int status)
   return status;
 }
 
+static void
+init_urids(LV2Apply* self)
+{
+  self->symap = symap_new();
+  self->urids.atom_Float           = symap_map(self->symap, LV2_ATOM__Float);
+  self->urids.atom_Int             = symap_map(self->symap, LV2_ATOM__Int);
+  self->urids.bufsz_maxBlockLength = symap_map(self->symap, LV2_BUF_SIZE__maxBlockLength);
+  self->urids.bufsz_minBlockLength = symap_map(self->symap, LV2_BUF_SIZE__minBlockLength);
+  self->urids.param_sampleRate     = symap_map(self->symap, LV2_PARAMETERS__sampleRate);
+}
+
+static void
+init_feature(LV2_Feature* const dest, const char* const URI, void* data)
+{
+  dest->URI = URI;
+  dest->data = data;
+}
+
+static void
+init_features(LV2Apply* self)
+{
+  /* Build options array to pass to plugin */
+  const LV2_Options_Option options[ARRAY_SIZE(self->features.options)] = {
+    { LV2_OPTIONS_INSTANCE, 0, self->urids.param_sampleRate,
+      sizeof(float), self->urids.atom_Float, &self->sample_rate },
+    { LV2_OPTIONS_INSTANCE, 0, self->urids.bufsz_minBlockLength,
+      sizeof(int32_t), self->urids.atom_Int, &self->block_length },
+    { LV2_OPTIONS_INSTANCE, 0, self->urids.bufsz_maxBlockLength,
+      sizeof(int32_t), self->urids.atom_Int, &self->block_length },
+    { LV2_OPTIONS_INSTANCE, 0, 0, 0, 0, NULL }
+  };
+  memcpy(self->features.options, options, sizeof(self->features.options));
+
+  init_feature(&self->features.options_feature, LV2_OPTIONS__options, self->features.options);
+
+  self->map.handle  = self;
+  self->map.map     = map_uri;
+  init_feature(&self->features.map_feature, LV2_URID__map, &self->map);
+
+  self->unmap.handle  = self;
+  self->unmap.unmap   = unmap_uri;
+  init_feature(&self->features.unmap_feature, LV2_URID__unmap, &self->unmap);
+
+  /* Build feature list for passing to plugins */
+  const LV2_Feature* const features[] = {
+    &self->features.map_feature,
+    &self->features.unmap_feature,
+    &self->features.options_feature,
+    NULL
+  };
+  self->feature_list = calloc(1, sizeof(features));
+  if (!self->feature_list) {
+    fatal (self, 10, "Failed to allocate feature list\n");
+  }
+  memcpy(self->feature_list, features, sizeof(features));
+}
+
 int
 main(int argc, char** argv)
 {
@@ -310,6 +423,14 @@ main(int argc, char** argv)
                  in_fmt.channels,
                  self.n_audio_in);
   }
+  self.block_length = 1;
+  self.sample_rate = in_fmt.samplerate;
+
+  /* Init URIDs */
+  init_urids(&self);
+
+  /* Init features */
+  init_features(&self);
 
   /* Set control values */
   for (unsigned i = 0; i < self.n_params; ++i) {
@@ -336,7 +457,10 @@ main(int argc, char** argv)
   const uint32_t n_ports = lilv_plugin_get_num_ports(plugin);
   float          in_buf[self.n_audio_in > 0 ? self.n_audio_in : 1];
   float          out_buf[self.n_audio_out > 0 ? self.n_audio_out : 1];
-  self.instance = lilv_plugin_instantiate(self.plugin, in_fmt.samplerate, NULL);
+  self.instance = lilv_plugin_instantiate(self.plugin, in_fmt.samplerate, self.feature_list);
+  if (!self.instance) {
+    return fatal (&self, 11, "Failed to instantiate plugin\n");
+  }
   for (uint32_t p = 0, i = 0, o = 0; p < n_ports; ++p) {
     if (self.ports[p].type == TYPE_CONTROL) {
       lilv_instance_connect_port(self.instance, p, &self.ports[p].value);
